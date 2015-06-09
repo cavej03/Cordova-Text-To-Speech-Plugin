@@ -38,7 +38,7 @@ double rate = .2;
     NSString* text = [command.arguments objectAtIndex:0];
     AVSpeechUtterance *utterance = [AVSpeechUtterance speechUtteranceWithString:text];
    // utterance.voice = [AVSpeechSynthesisVoice voiceWithLanguage:lang];
-    utterance.voice = [AVSpeechSynthesisVoice currentLanguageCode];
+    //utterance.voice = [AVSpeechSynthesisVoice currentLanguageCode]; JC didnt work... 20150609 by not setting it it should use the default locale
     utterance.rate = rate;
     [synth speakUtterance:utterance];
 
