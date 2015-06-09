@@ -37,7 +37,8 @@ double rate = .2;
 - (void)speak:(CDVInvokedUrlCommand*)command{
     NSString* text = [command.arguments objectAtIndex:0];
     AVSpeechUtterance *utterance = [AVSpeechUtterance speechUtteranceWithString:text];
-    utterance.voice = [AVSpeechSynthesisVoice voiceWithLanguage:lang];
+   // utterance.voice = [AVSpeechSynthesisVoice voiceWithLanguage:lang];
+    utterance.voice = [AVSpeechSynthesisVoice currentLanguageCode];
     utterance.rate = rate;
     [synth speakUtterance:utterance];
 
