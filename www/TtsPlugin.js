@@ -46,7 +46,7 @@ tts.prototype.setRate = function(rate) {
 
 tts.prototype.speak = function(text) {
     exec(function(result){
-        console.log(result);
+        //console.log(result);
         // document.dispatchEvent(new CustomEvent('ttsSpeakSuccess', result));
     },
     function(error){
