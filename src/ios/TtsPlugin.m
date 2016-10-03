@@ -4,13 +4,34 @@
 @implementation TtsPlugin
 
 AVSpeechSynthesizer *synth;
+//NSString *lang = @"en-US";
 NSString *lang = @"en-US";
-double rate = .2;
+AVSpeechSynthesisVoice *globalVoice;
+double rate = 0.2;
+NSString *currentLocale;
 
 - (void)initTTS:(CDVInvokedUrlCommand*)command{
     synth = [[AVSpeechSynthesizer alloc] init];
     synth.delegate = self;
 
+    NSString *locale = [[NSLocale currentLocale] localeIdentifier];
+    NSRange startRange = [locale rangeOfString:@"_"]; // this isn't the underscore you see in the first string
+    currentLocale = [locale stringByReplacingCharactersInRange:NSMakeRange(0, startRange.length+1) withString:[[NSLocale preferredLanguages] objectAtIndex:0]];
+    currentLocale = [currentLocale stringByReplacingOccurrencesOfString:@"_"
+                                         withString:@"-"];
+    NSLog(@"current locale: %@", currentLocale);
+
+    for (AVSpeechSynthesisVoice *voice in [AVSpeechSynthesisVoice speechVoices]) {
+        NSLog(@"voice: %@", voice.language);
+        NSString *language = voice.language;
+        
+        if ([language isEqualToString:currentLocale]){
+            NSLog(@"setting voice to locale: %@", currentLocale);
+            globalVoice = voice;
+        }
+    }
+    
+    
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"OK"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -24,6 +45,7 @@ double rate = .2;
 - (void)setRate:(CDVInvokedUrlCommand*)command{
     @try {
         rate = [[command.arguments objectAtIndex:0] doubleValue];
+        //NSLog(@"setting rate: %f", rate);
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"OK"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
@@ -34,12 +56,38 @@ double rate = .2;
     //@finally { }
 }
 
+- (void)setVoice:(CDVInvokedUrlCommand*)command{
+    NSString* text = [command.arguments objectAtIndex:0];
+    
+    for (AVSpeechSynthesisVoice *voice in [AVSpeechSynthesisVoice speechVoices]) {
+        NSLog(@"voice: %@", voice.language);
+        NSString *language = voice.language;
+        
+        if ([language isEqualToString:text]){
+            NSLog(@"setting voice to locale: %@", currentLocale);
+            globalVoice = voice;
+        }
+    }
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:globalVoice.language];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
 - (void)speak:(CDVInvokedUrlCommand*)command{
     NSString* text = [command.arguments objectAtIndex:0];
+    //AVSpeechUtterance *utterance = [AVSpeechUtterance speechUtteranceWithString:@"by not setting it it should use the default cool cool"];
     AVSpeechUtterance *utterance = [AVSpeechUtterance speechUtteranceWithString:text];
-   // utterance.voice = [AVSpeechSynthesisVoice voiceWithLanguage:lang];
+//    utterance.voice = [AVSpeechSynthesisVoice voiceWithLanguage:lang];
+    utterance.voice = globalVoice;
     //utterance.voice = [AVSpeechSynthesisVoice currentLanguageCode]; JC didnt work... 20150609 by not setting it it should use the default locale
-    utterance.rate = rate;
+    
+    //NSLog(@"max: %f", AVSpeechUtteranceMaximumSpeechRate);
+    //NSLog(@"min: %f", AVSpeechUtteranceMinimumSpeechRate);
+    //NSLog(@"default: %f", AVSpeechUtteranceDefaultSpeechRate);
+
+    utterance.rate = rate*AVSpeechUtteranceDefaultSpeechRate/0.2;
+    NSLog(@"current: %f", utterance.rate);
     [synth speakUtterance:utterance];
 
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:text];
@@ -109,7 +157,7 @@ double rate = .2;
     [self.commandDelegate evalJs:@"ttsPlugin.callbacks.cancelledSpeaking()"];
 }
 - (void)speechSynthesizer:(AVSpeechSynthesizer *)synthesizer willSpeakRangeOfSpeechString:(NSRange)characterRange utterance:(AVSpeechUtterance *)utterance{
-    NSLog(@"willSpeakRangeOfSpeechString: %@", NSStringFromRange(characterRange));
+    //NSLog(@"willSpeakRangeOfSpeechString: %@", NSStringFromRange(characterRange));
     NSString* jsString = [[NSString alloc] initWithFormat:@"ttsPlugin.callbacks.currentRangeOfSpeech(\"%@\")",NSStringFromRange(characterRange)];
     [self.commandDelegate evalJs:jsString];
 }
