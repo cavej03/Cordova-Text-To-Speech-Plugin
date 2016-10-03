@@ -43,6 +43,21 @@ tts.prototype.setRate = function(rate) {
     );
 };
 
+tts.prototype.setVoice = function(text) {
+    exec(function(result){
+        //console.log(result);
+        // document.dispatchEvent(new CustomEvent('ttsSpeakSuccess', result));
+    },
+    function(error){
+        // document.dispatchEvent(new CustomEvent('ttsSpeakFailed', result));
+    },
+    "TtsPlugin",
+    "setVoice",
+    [text]
+    );
+};
+
+
 
 tts.prototype.speak = function(text) {
     exec(function(result){
