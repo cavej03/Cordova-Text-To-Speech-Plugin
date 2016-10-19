@@ -61,12 +61,20 @@ NSString *currentLocale;
     
     for (AVSpeechSynthesisVoice *voice in [AVSpeechSynthesisVoice speechVoices]) {
         NSLog(@"voice: %@", voice.language);
-        NSString *language = voice.language;
+        NSLog(@"name: %@", voice.name);
+//        NSString *language = voice.language;
+        NSString *name = voice.name;
         
-        if ([language isEqualToString:text]){
+        if ([name isEqualToString:text]){
             NSLog(@"setting voice to locale: %@", currentLocale);
             globalVoice = voice;
         }
+        
+//        
+//        if ([language isEqualToString:text]){
+//            NSLog(@"setting voice to locale: %@", currentLocale);
+//            globalVoice = voice;
+//        }
     }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:globalVoice.language];
