@@ -43,6 +43,22 @@ tts.prototype.setRate = function(rate) {
     );
 };
 
+tts.prototype.getVoices = function(callback) { //because this is asynchronous we need to pass a callback 
+    exec(function(result){
+        if(callback){
+            callback(result);
+        }
+    },
+    function(error){
+        console.error(error);
+    },
+    "TtsPlugin",
+    "getVoices",
+    []
+    );
+};
+
+
 tts.prototype.setVoice = function(text) {
     exec(function(result){
         //console.log(result);
