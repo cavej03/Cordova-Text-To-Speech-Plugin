@@ -21,6 +21,7 @@ NSString *currentLocale;
                                          withString:@"-"];
     NSLog(@"current locale: %@", currentLocale);
 
+    
     for (AVSpeechSynthesisVoice *voice in [AVSpeechSynthesisVoice speechVoices]) {
         NSLog(@"voice: %@", voice.language);
         NSString *language = voice.language;
@@ -56,13 +57,24 @@ NSString *currentLocale;
     //@finally { }
 }
 
+- (void)getVoices:(CDVInvokedUrlCommand*)command{
+    NSMutableArray *stringArray = [[NSMutableArray alloc] init];
+    for (AVSpeechSynthesisVoice *voice in [AVSpeechSynthesisVoice speechVoices]) {
+        NSString *fullstring = voice.name;
+        NSString *nameAndLocale = [fullstring stringByAppendingString:voice.language];
+        [stringArray addObject:nameAndLocale];
+    }
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:stringArray];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void)setVoice:(CDVInvokedUrlCommand*)command{
     NSString* text = [command.arguments objectAtIndex:0];
     
     for (AVSpeechSynthesisVoice *voice in [AVSpeechSynthesisVoice speechVoices]) {
         NSLog(@"voice: %@", voice.language);
         NSLog(@"name: %@", voice.name);
-        NSString *language = voice.language;
+        //NSString *language = voice.language;
         NSString *name = voice.name;
         
         if ([name isEqualToString:text]){
