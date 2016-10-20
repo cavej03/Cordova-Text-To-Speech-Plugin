@@ -58,14 +58,17 @@ NSString *currentLocale;
 }
 
 - (void)getVoices:(CDVInvokedUrlCommand*)command{
+    NSLog(@"setting voice to locale: coolbeans");
+    
     NSMutableArray *stringArray = [[NSMutableArray alloc] init];
     for (AVSpeechSynthesisVoice *voice in [AVSpeechSynthesisVoice speechVoices]) {
-        NSString *fullstring = voice.name;
-        NSString *nameAndLocale = [fullstring stringByAppendingString:voice.language];
+        NSString *nameAndLocale = [voice.name stringByAppendingString:@"["];
+        nameAndLocale = [nameAndLocale stringByAppendingString:voice.language];
+        nameAndLocale = [nameAndLocale stringByAppendingString:@"]"];
         [stringArray addObject:nameAndLocale];
     }
-    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:stringArray];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:stringArray] callbackId:command.callbackId];
 }
 
 - (void)setVoice:(CDVInvokedUrlCommand*)command{
@@ -125,8 +128,7 @@ NSString *currentLocale;
     bool isSpeaking = [synth isSpeaking];
     bool isPaused = [synth isPaused];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"stopped"];
-     //NSString *speechStatus = @"stopped";
-
+    
     if (isSpeaking && isPaused){
         // *speechStatus = @"paused";
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"paused"];
